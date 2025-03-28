@@ -1,13 +1,13 @@
 export const palette = {
-  // Primary
-  primary: '#22A45D',
-  primaryLight: '#E7F5EF',
-  primaryDark: '#0A8D40',
+  // Primary - atualizado para corresponder ao Nubble do Figma
+  primary: '#074C4E', // Verde escuro do Nubble
+  primaryLight: '#EAF6F6',
+  primaryDark: '#053333',
   
   // Secondary
-  secondary: '#FE3165',
-  secondaryLight: '#FCECF0',
-  secondaryDark: '#D10049',
+  secondary: '#F86F2D', // Laranja do Nubble
+  secondaryLight: '#FEF0EC',
+  secondaryDark: '#E05A21',
   
   // Gray scale
   gray100: '#F8F9FA',
@@ -21,8 +21,8 @@ export const palette = {
   gray900: '#212529',
   
   // Status
-  success: '#22A45D',
-  error: '#FF3B30',
+  success: '#4ABC86', // Verde do Nubble
+  error: '#EA3838',   // Vermelho do Nubble
   warning: '#FFCC00',
   
   // Common

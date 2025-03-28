@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 
@@ -20,15 +20,17 @@ export function AppTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.gray700,
         tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabBarLabel,
       }}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
         options={{
+          tabBarLabel: 'Início',
           tabBarIcon: ({ color, size }) => (
             <Feather name="home" size={size} color={color} />
           ),
@@ -38,8 +40,9 @@ export function AppTabNavigator() {
         name="SearchTab"
         component={SearchScreen}
         options={{
+          tabBarLabel: 'Novo post',
           tabBarIcon: ({ color, size }) => (
-            <Feather name="search" size={size} color={color} />
+            <Feather name="plus-circle" size={size} color={color} />
           ),
         }}
       />
@@ -47,19 +50,9 @@ export function AppTabNavigator() {
         name="NewPostTab"
         component={NewPostScreen}
         options={{
-          tabBarIcon: ({ size }) => (
-            <View style={styles.newPostButton}>
-              <Feather name="plus" size={size} color={theme.colors.white} />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="NotificationsTab"
-        component={NotificationsScreen}
-        options={{
+          tabBarLabel: 'Favoritos',
           tabBarIcon: ({ color, size }) => (
-            <Feather name="heart" size={size} color={color} />
+            <Feather name="bookmark" size={size} color={color} />
           ),
         }}
       />
@@ -67,8 +60,9 @@ export function AppTabNavigator() {
         name="ProfileTab"
         component={ProfileScreen}
         options={{
+          tabBarLabel: 'Meu perfil',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="user-circle-o" size={size} color={color} />
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />
@@ -83,13 +77,11 @@ const styles = StyleSheet.create({
     height: 60,
     elevation: 0,
     shadowOpacity: 0,
+    paddingBottom: 5,
+    paddingTop: 5,
   },
-  newPostButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: 10,
-    height: 36,
-    width: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
+  tabBarLabel: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });

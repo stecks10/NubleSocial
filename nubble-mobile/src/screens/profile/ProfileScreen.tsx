@@ -11,7 +11,7 @@ const MOCK_USER: User = {
   username: 'yourusername',
   fullName: 'Your Name',
   avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
-  bio: 'Mobile developer and photography enthusiast. ✨ Love travel and good coffee.',
+  bio: 'Mobile developer and photography enthusiast. ✨\nLove travel and good coffee.',
 };
 
 // Mock post data for grid display
@@ -30,7 +30,9 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
-        <Feather name="menu" size={24} color={theme.colors.gray800} />
+        <TouchableOpacity>
+          <Feather name="menu" size={24} color={theme.colors.gray800} />
+        </TouchableOpacity>
       </View>
       
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -67,20 +69,20 @@ export default function ProfileScreen() {
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.shareProfileButton}>
-            <Feather name="share-2" size={20} color={theme.colors.gray800} />
+            <Feather name="share" size={20} color={theme.colors.gray800} />
           </TouchableOpacity>
         </View>
         
-        {/* Photos Grid */}
-        <View style={styles.photosHeader}>
-          <TouchableOpacity style={styles.photosTab}>
+        {/* Photos Grid Navigation Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity style={[styles.tab, styles.activeTab]}>
             <Feather name="grid" size={20} color={theme.colors.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.photosTab}>
+          <TouchableOpacity style={styles.tab}>
             <Feather name="bookmark" size={20} color={theme.colors.gray500} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.photosTab}>
-            <Feather name="tag" size={20} color={theme.colors.gray500} />
+          <TouchableOpacity style={styles.tab}>
+            <Feather name="heart" size={20} color={theme.colors.gray500} />
           </TouchableOpacity>
         </View>
         
@@ -103,93 +105,100 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    height: 60,
-    paddingHorizontal: s.md,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.gray200,
+    height: 44,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 0,
   },
   headerTitle: {
-    ...typography({ fontSize: 'lg', fontWeight: 'semiBold' }),
+    ...typography({ fontSize: 'lg', fontWeight: 'bold' }),
   },
   profileInfo: {
     flexDirection: 'row',
-    padding: s.md,
+    padding: 16,
     alignItems: 'center',
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: s.md,
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    marginRight: 24,
+    borderWidth: 1,
+    borderColor: theme.colors.gray300,
   },
   statsContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
   statItem: {
     alignItems: 'center',
   },
   statNumber: {
     ...typography({ fontSize: 'lg', fontWeight: 'bold' }),
+    marginBottom: 4,
   },
   statLabel: {
     ...typography({ fontSize: 'sm' }),
     color: theme.colors.gray600,
   },
   bioContainer: {
-    paddingHorizontal: s.md,
-    marginBottom: s.md,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   fullName: {
-    ...typography({ fontSize: 'md', fontWeight: 'semiBold' }),
+    ...typography({ fontSize: 'md', fontWeight: 'bold' }),
   },
   username: {
     ...typography({ fontSize: 'sm' }),
     color: theme.colors.gray600,
-    marginBottom: s.xs,
+    marginBottom: 6,
   },
   bio: {
     ...typography({ fontSize: 'md' }),
+    lineHeight: 20,
   },
   actionButtons: {
     flexDirection: 'row',
-    paddingHorizontal: s.md,
-    marginBottom: s.lg,
+    paddingHorizontal: 16,
+    marginBottom: 24,
   },
   editProfileButton: {
     flex: 1,
     backgroundColor: theme.colors.gray200,
-    borderRadius: theme.borderRadius.sm,
-    paddingVertical: s.sm,
+    borderRadius: 4,
+    paddingVertical: 8,
     alignItems: 'center',
-    marginRight: s.sm,
+    marginRight: 8,
   },
   editProfileText: {
-    ...typography({ fontSize: 'md', fontWeight: 'semiBold' }),
+    ...typography({ fontSize: 'md', fontWeight: 'medium' }),
+    color: theme.colors.gray800,
   },
   shareProfileButton: {
+    width: 40,
+    height: 36,
     backgroundColor: theme.colors.gray200,
-    borderRadius: theme.borderRadius.sm,
-    paddingVertical: s.sm,
-    paddingHorizontal: s.md,
+    borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photosHeader: {
+  tabsContainer: {
     flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: theme.colors.gray200,
+    marginBottom: 2,
   },
-  photosTab: {
+  tab: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: s.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.gray200,
+    paddingVertical: 12,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.primary,
   },
   photosGrid: {
     flexDirection: 'row',
