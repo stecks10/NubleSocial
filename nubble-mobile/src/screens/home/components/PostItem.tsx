@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, TextInput, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 import { theme, typography } from '../../../theme';
-import { Post } from '../../../types';
+import { Post, Comment } from '../../../types';
 
 interface PostItemProps {
   post: Post;
@@ -11,7 +11,51 @@ interface PostItemProps {
 
 const { width } = Dimensions.get('window');
 
-export function PostItem({ post }: PostItemProps) {
+export function PostItem({ post: initialPost }: PostItemProps) {
+  const [post, setPost] = useState(initialPost);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [showComments, setShowComments] = useState(false);
+  
+  const handleLike = () => {
+    const newLikeCount = isLiked ? post.likes - 1 : post.likes + 1;
+    setPost({...post, likes: newLikeCount});
+    setIsLiked(!isLiked);
+  };
+  
+  const handleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
+  
+  const handleAddComment = () => {
+    if (!commentText.trim()) return;
+    
+    const newComment: Comment = {
+      id: Date.now(),
+      userId: 999, // Usuário atual simulado
+      postId: post.id,
+      text: commentText,
+      createdAt: new Date().toISOString(),
+      user: {
+        id: 999,
+        username: 'yourusername',
+        avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+      },
+    };
+    
+    const updatedComments = [...post.comments, newComment];
+    setPost({...post, comments: updatedComments});
+    setCommentText('');
+  };
+  
+  const toggleComments = () => {
+    setShowComments(!showComments);
+  };
+  
+  const likeColor = isLiked ? theme.colors.secondary : theme.colors.gray700;
+  const favoriteColor = isFavorited ? theme.colors.secondary : theme.colors.gray700;
+  
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -30,29 +74,41 @@ export function PostItem({ post }: PostItemProps) {
         </TouchableOpacity>
       </View>
 
-      {/* Image */}
-      <Image 
-        source={{ uri: post.imageUrl }} 
-        style={styles.postImage} 
-        resizeMode="cover"
-      />
+      {/* Image - Double tap to like */}
+      <TouchableOpacity activeOpacity={1} onPress={handleLike}>
+        <Image 
+          source={{ uri: post.imageUrl }} 
+          style={styles.postImage} 
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
 
       {/* Actions */}
       <View style={styles.actions}>
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Feather name="heart" size={22} color={theme.colors.secondary} />
+          <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
+            <Feather 
+              name={isLiked ? "heart" : "heart"} 
+              size={22} 
+              color={likeColor} 
+              style={isLiked ? styles.likedIcon : {}}
+            />
             <Text style={styles.actionCount}>{post.likes}</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={toggleComments}>
             <Feather name="message-circle" size={22} color={theme.colors.gray700} />
             <Text style={styles.actionCount}>{post.comments.length}</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
-            <Feather name="bookmark" size={22} color={theme.colors.gray700} />
-            <Text style={styles.actionCount}>1</Text>
+          <TouchableOpacity style={styles.actionButton} onPress={handleFavorite}>
+            <Feather 
+              name="bookmark" 
+              size={22} 
+              color={favoriteColor}
+              style={isFavorited ? styles.likedIcon : {}}
+            />
+            <Text style={styles.actionCount}>{isFavorited ? 1 : 0}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -67,7 +123,7 @@ export function PostItem({ post }: PostItemProps) {
 
       {/* Comments */}
       {post.comments.length > 0 && (
-        <TouchableOpacity style={styles.commentsButton}>
+        <TouchableOpacity style={styles.commentsButton} onPress={toggleComments}>
           <Text style={styles.commentsText}>
             ver {post.comments.length} comentários
           </Text>
@@ -77,13 +133,84 @@ export function PostItem({ post }: PostItemProps) {
       {/* First comment for preview */}
       {post.comments.length > 0 && (
         <View style={styles.commentPreviewContainer}>
-          <Image source={{ uri: post.comments[0].user?.avatar }} style={styles.commentAvatar} />
+          <Image source={{ uri: post.comments[post.comments.length - 1].user?.avatar }} style={styles.commentAvatar} />
           <View style={styles.commentContent}>
-            <Text style={styles.commentUsername}>{post.comments[0].user?.username}</Text>
-            <Text style={styles.commentText}>{post.comments[0].text}</Text>
+            <Text style={styles.commentUsername}>{post.comments[post.comments.length - 1].user?.username}</Text>
+            <Text style={styles.commentText}>{post.comments[post.comments.length - 1].text}</Text>
           </View>
         </View>
       )}
+      
+      {/* Add comment section */}
+      <View style={styles.addCommentContainer}>
+        <Image 
+          source={{ uri: 'https://randomuser.me/api/portraits/lego/1.jpg' }} 
+          style={styles.commentAvatar} 
+        />
+        <TextInput 
+          style={styles.commentInput}
+          placeholder="Adicione um comentário..."
+          value={commentText}
+          onChangeText={setCommentText}
+          onSubmitEditing={handleAddComment}
+        />
+        <TouchableOpacity 
+          style={[styles.sendButton, !commentText.trim() && styles.sendButtonDisabled]} 
+          onPress={handleAddComment}
+          disabled={!commentText.trim()}
+        >
+          <Feather name="send" size={20} color={theme.colors.primary} />
+        </TouchableOpacity>
+      </View>
+      
+      {/* Comments Modal */}
+      <Modal
+        visible={showComments}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={toggleComments}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Comentários</Text>
+              <TouchableOpacity onPress={toggleComments}>
+                <Feather name="x" size={24} color={theme.colors.gray800} />
+              </TouchableOpacity>
+            </View>
+            
+            {post.comments.map((comment) => (
+              <View key={comment.id} style={styles.commentItem}>
+                <Image source={{ uri: comment.user?.avatar }} style={styles.commentAvatar} />
+                <View style={styles.commentBubble}>
+                  <Text style={styles.commentUsername}>{comment.user?.username}</Text>
+                  <Text style={styles.commentText}>{comment.text}</Text>
+                </View>
+              </View>
+            ))}
+            
+            <View style={styles.modalAddComment}>
+              <Image 
+                source={{ uri: 'https://randomuser.me/api/portraits/lego/1.jpg' }} 
+                style={styles.commentAvatar} 
+              />
+              <TextInput 
+                style={styles.commentInput}
+                placeholder="Adicione um comentário..."
+                value={commentText}
+                onChangeText={setCommentText}
+              />
+              <TouchableOpacity 
+                style={[styles.sendButton, !commentText.trim() && styles.sendButtonDisabled]} 
+                onPress={handleAddComment}
+                disabled={!commentText.trim()}
+              >
+                <Feather name="send" size={20} color={theme.colors.primary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -137,6 +264,9 @@ const styles = StyleSheet.create({
     ...typography({ fontSize: 'sm', fontWeight: 'medium' }),
     marginLeft: 6,
   },
+  likedIcon: {
+    opacity: 1
+  },
   captionContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -161,7 +291,7 @@ const styles = StyleSheet.create({
   commentPreviewContainer: {
     flexDirection: 'row', 
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 8,
     alignItems: 'flex-start',
   },
   commentAvatar: {
@@ -183,5 +313,69 @@ const styles = StyleSheet.create({
   commentText: {
     ...typography({ fontSize: 'sm' }),
     flex: 1,
+  },
+  addCommentContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.gray200,
+    alignItems: 'center',
+  },
+  commentInput: {
+    flex: 1,
+    ...typography({ fontSize: 'sm' }),
+    paddingVertical: 8,
+    marginHorizontal: 8,
+  },
+  sendButton: {
+    padding: 8,
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 30,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.gray200,
+  },
+  modalTitle: {
+    ...typography({ fontSize: 'lg', fontWeight: 'bold' }),
+  },
+  commentItem: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'flex-start',
+  },
+  commentBubble: {
+    flex: 1,
+    backgroundColor: theme.colors.gray100,
+    padding: 10,
+    borderRadius: 12,
+  },
+  modalAddComment: {
+    flexDirection: 'row',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.gray200,
+    alignItems: 'center',
   },
 });
